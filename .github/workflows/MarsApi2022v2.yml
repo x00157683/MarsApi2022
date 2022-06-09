@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: .net-app
-        path: ${{env.DOTNET_ROOT}}\Server
+        path: ${{env.DOTNET_ROOT}}\MarsApi
 
   deploy:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
