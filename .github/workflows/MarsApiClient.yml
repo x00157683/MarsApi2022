@@ -23,14 +23,14 @@ jobs:
               dotnet-version: '6.0.x'
               include-prerelease: true
           - run: |
-              cd Client
+              cd EAD_Ca3
               dotnet --version
               dotnet workload install microsoft-net-sdk-blazorwebassembly-aot
               dotnet publish -c Release -o out
           - uses: actions/upload-artifact@v2
             with:
               name: out
-              path: Client/out
+              path: EAD_Ca3/out
 
     deploy:
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
