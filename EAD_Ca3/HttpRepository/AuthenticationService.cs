@@ -5,6 +5,7 @@ using System.Text.Json;
 using Blazored.LocalStorage;
 using System.Net.Http.Headers;
 using EAD_Ca3.AuthProviders;
+using Client.Static;
 
 namespace EAD_Ca3.HttpRepository
 {
@@ -28,7 +29,7 @@ namespace EAD_Ca3.HttpRepository
             var content = JsonSerializer.Serialize(userForRegistration);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var registrationResult = await _client.PostAsync("https://localhost:7103/api/accounts/registration", bodyContent);
+            var registrationResult = await _client.PostAsync(APIEndpoints.s_userRegister, bodyContent);
             var registrationContent = await registrationResult.Content.ReadAsStringAsync();
 
             if (!registrationResult.IsSuccessStatusCode)
@@ -44,8 +45,8 @@ namespace EAD_Ca3.HttpRepository
         {
             var content = JsonSerializer.Serialize(userForAuthentication);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-
-            var authResult = await _client.PostAsync("https://localhost:7103/api/accounts/login", bodyContent);
+            
+            var authResult = await _client.PostAsync(APIEndpoints.s_signIn, bodyContent);
             var authContent = await authResult.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<AuthResponseDto>(authContent, _options);
 
