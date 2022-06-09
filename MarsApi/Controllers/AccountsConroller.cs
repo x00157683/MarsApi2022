@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shared;
 using System.IdentityModel.Tokens.Jwt;
@@ -42,7 +43,15 @@ namespace MarsApi.Controllers
 
             return StatusCode(201);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            //List<AppUser> usersFromDatabase = (List<AppUser>)await _userManager.Users.FirstOrDefault();
 
+            var users = await _userManager.Users.ToListAsync();
+
+            return Ok(users);
+        }
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] UserForAuthenticationDto userForAuthentication)
         {
