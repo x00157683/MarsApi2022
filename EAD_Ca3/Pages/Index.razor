@@ -5,55 +5,279 @@
 @using Data
 @using System;
 @using System.ComponentModel.DataAnnotations;
+@using t3d = BlazorStrap
+@using Blazority
+@using Microsoft.Extensions.Logging;
+@inject ILogger<FetchData> logger;
+@inject HttpClient Http;
 
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
 
-<div class="container-fluid text-center">    
-  <div class="row content">
-    <div class="col-sm-2 sidenav">
-      <p><a href="https://en.wikipedia.org/wiki/Mars_rover">Rover Wiki</a></p>
-      <p><a href="https://mars.nasa.gov/mer/">Nasa</a></p>
-      <p><a href="https://api.nasa.gov/">API Link</a></p>
-    </div>
-    <div class="col-sm-8 text-left"> 
-        <div class="row"></div>
-            <div class="col">
-                <img src="../wwwroot/Images/pers.jfif" width="300" />
-                </div>
-                <div class="col">
-                    <img src="../wwwroot/Images/pers.jfif" width="300" />
-                </div>
-                 <div class="row"></div>
-            <div class="col">
-                <img src="../wwwroot/Images/pers.jfif" width="300" />
-                </div>
-                <div class="col">
-                    <img src="../wwwroot/Images/pers.jfif" width="300" />
-                </div>
-               
-        <hr>
-      <h1>Welcome</h1>
-      <p>My name is Darren McLean and this is my Enterprise Application Development Web Page. This Page was built using Microsofts Blazer WebAssembly. This application 
-          will gather data from an Api developed by Nasa. It will contain data from their Rover missions on Mars. Click the wiki link for more</p>
-      
-     
-    </div>
-    <div class="col-sm-2 sidenav">
-      <div class="well">
+
+<div class="container-fluid text-center">
+    <div class="row content">
+        <div class="">
+            <h1>Mars API Photos</h1>
+              <div class="row ">
+            <div class="col-sm-2 sidenav">
+              <div id="solDay" class="py-2">
+                    <EditForm Model="@q1" OnValidSubmit="@CallRover">
+
+                        <fieldset>
+
+                            <legend>Search photo</legend>
+                            <DataAnnotationsValidator />
+                            <div class="row ">
+                                @*          <div class="col-lg-6 col-xl-6 p-3">
+                                    <RadzenCard>
+                                    <h4 class="mb-4">DatePicker with custom initial view date (June 1, 2040)</h4>
+                                    <RadzenDatePicker InitialViewDate="new DateTime(2021,04,20)" TValue="DateTime?" Change=@(args => OnChange(args, "DatePicker with custom initial view date (June 1, 2040)", "MM-dd-yyyy")) Class="w-100" />
+                                    </RadzenCard>
+                                    </div>*@
+                            </div>
+                            <div class="row ">
+                            
+                                    <div class="form-group">
+                                        <label for="name">Sol Day: </label>
+                                        <InputText id="name" @bind-Value="q1.solDay" class="col-md-10 form-control" />
+                                        <ValidationMessage For="@(() => q1.solDay)" />
+                                    </div>
+                             
+                                </div>
+                                 <div class="row ">
+                        
+                                    <div class="form-group">
+                                        <label for="roverType">Rover Type: </label>
+                                        <InputSelect id="roverType" @bind-Value="q1.RoverName" class="col-md-10 form-control">
+                                            <option value="@RoverNames.Curiosity">Curiosity</option>
+                                            <option value="@RoverNames.Opportunity">Opportunity</option>
+                                            <option value="@RoverNames.Perseverance">Perseverance</option>
+                                            <option value="@RoverNames.Spirit">Spirit</option>
+
+                                        </InputSelect>
+                                    </div>
+                      
        
-      </div>
-      <div class="well">
-        
-      </div>
+                                       <div class="col-md-4 py-3 ">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                              
+                            </div>
+                 
+                        </fieldset>
+
+                    </EditForm>
+                </div>
+            </div>
+            <div class="col-sm-8 ">
+
+                <p>Enter a sol day (limited depending on rover)</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+
+                            <th scope="col">Rover</th>
+                            <th scope="col">Max Sol Day</th>
+                            <th scope="col">Land Date</th>
+                            <th scope="col">Max Date</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                        @foreach (var it in m1)
+                        {
+
+                            <tr>
+                                <td>@it.name</td>
+                                <td>@it.max_sol</td>
+                                <td>@it.launch_date</td>
+                                <td>@it.max_date</td>
+
+                            </tr>
+
+                        }
+
+
+
+                    </tbody>
+                </table>
+
+      
+
+            </div>
+            </div>
+            <hr />
+              <h2>Most Recent Photos</h2>
+            <section class="">
+                <!-- Section: Images -->
+                <section class="">
+                    <div class="row my-2">
+
+
+
+                        @if (p1.Any() is false)
+                        {
+                            <div class="">
+                                No Photo Displayed
+                            </div>
+
+                        }
+
+                        else
+                        {
+                            @foreach (var item in p1)
+                            {
+
+                                <div class="py-1 col-lg-4 col-md-12 mb-4 mb-lg-0 ">
+                                    <div class="bg-image hover-overlay ripple shadow-1-strong rounded "
+                                 data-ripple-color="light">
+                                        <a target="_blank" href="@item.img_src">
+                                            <img src="@item.img_src" alt="@item.rover.name" width="250" height="250">
+                                        </a>
+
+                                        <div class="RoverId">
+                                            <p>
+                                                Id: @item.id
+                                            </p>
+                                        </div>
+                                        <div class="">
+                                            Earth Date: @item.earth_date
+                                        </div>
+                                        @*<button class="btn btn-primary float-left md-2" @onclick="args =>AddtoFav(item)">Add to favorites</button>*@
+
+                                    </div>
+                                </div>
+                            }
+
+                        }
+
+                    </div>
+                </section>
+
+            </section>
+        </div>
 
     </div>
-
-  </div>
 </div>
+@code {
 
+
+    const string APIKEY = "api_key=vT5CQ2aqemBmK4jfX3ceTtFpbmu8bM62ft2YwywO";
+
+    public List<Photo> p1 = new List<Photo>();
+    public List<Photo> recents = new List<Photo>();
+    public MarsQuery q1 = new MarsQuery();
+    public TempUser t1 = new TempUser();
+    public List<Manifest> m1 = new List<Manifest>();
+
+    DateTime? value = DateTime.Now;
+
+    IEnumerable<DateTime> dates = new DateTime[] { DateTime.Today.AddDays(-1), DateTime.Today.AddDays(1) };
+
+
+    public enum ROVER
+    {
+
+        Perseverance,
+        Opportunity,
+        Curiosity,
+        Spirit
+    }
+    private async void CallRover()
+    {
+
+        try
+        {
+
+
+            Root? myDeserializedClass = JsonConvert.DeserializeObject<Root>(await Http.GetStringAsync("https://api.nasa.gov/mars-photos/api/v1/rovers/" + q1.RoverName + "/photos?sol=" + q1.solDay + "&" + APIKEY));
+            p1 = myDeserializedClass.photos;
+
+            //https://api.nasa.gov/mars-photos/api/v1/rovers/Perseverance/photos?landing_date=2021-02-18&api_key=vT5CQ2aqemBmK4jfX3ceTtFpbmu8bM62ft2YwywO
+
+            if (p1.Count != 0)
+            {
+                Console.WriteLine(p1.Count);
+                q1.isEmpty = false;
+
+            }
+            else
+            {
+
+                Console.WriteLine("zeroo");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
+    // validation passed and form submitted
+
+    public void NextDay()
+    {
+
+        if (q1.solDay != null)
+        {
+            int day = Int32.Parse(q1.solDay);
+
+            day++;
+
+            q1.solDay = day.ToString();
+
+
+        }
+
+        else
+        {
+            throw new InvalidOperationException("No current day!");
+        }
+    }
+
+    public void AddtoFav(Photo pIn)
+    {
+
+        t1.myFavs.Add(pIn);
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            Console.WriteLine("https://api.nasa.gov/mars-photos/api/v1/rovers/" + q1.RoverName + "/photos?sol=" + q1.solDay + "&" + APIKEY);
+            //https://api.nasa.gov/mars-photos/api/v1/rovers/Perseverance/photos?landing_date=2021-02-18&api_key=vT5CQ2aqemBmK4jfX3ceTtFpbmu8bM62ft2YwywO
+
+            Root? myDeserializedClassm2 = JsonConvert.DeserializeObject<Root>(await Http.GetStringAsync("https://api.nasa.gov/mars-photos/api/v1/manifests/curiosity/?" + APIKEY));
+            Manifest m3 = myDeserializedClassm2.photo_manifest;
+            Root? myDeserializedClass1 = JsonConvert.DeserializeObject<Root>(await Http.GetStringAsync("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + m3.max_sol + "&" + APIKEY));
+            p1 = myDeserializedClass1.photos;
+
+
+            foreach (string name in Enum.GetNames(typeof(RoverNames)))
+            {
+                Root? myDeserializedClassm1 = JsonConvert.DeserializeObject<Root>(await Http.GetStringAsync("https://api.nasa.gov/mars-photos/api/v1/manifests/" + name + "?" + APIKEY));
+                Manifest m2 = myDeserializedClassm1.photo_manifest;
+
+                m1.Add(m2);
+
+            };
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Failed to initialize MyComponent. Error: {ex}");
+            Console.WriteLine($"Failed to initialize MyComponent. Error: {ex}");
+        }
+
+    }
+
+}
 
 
 
