@@ -54,7 +54,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ MarsApi2022v2 }}
+        app-name: MarsApi2022v2
         slot-name: 'production'
         publish-profile: ${{ secrets.MarsApi2022v2_6631 }}
         package: .
