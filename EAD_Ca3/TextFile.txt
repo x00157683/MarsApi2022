@@ -1,0 +1,27 @@
+﻿   private async void CallRover()
+    {
+       
+        try
+        {
+            Root? myDeserializedClass = JsonConvert.DeserializeObject<Root>(await Http.GetStringAsync("https://api.nasa.gov/mars-photos/api/v1/rovers/" + q1.RoverName + "/photos" + "&" + APIKEY));
+            p1 = myDeserializedClass.photos;
+
+            //https://api.nasa.gov/mars-photos/api/v1/rovers/Perseverance/photos?landing_date=2021-02-18&api_key=vT5CQ2aqemBmK4jfX3ceTtFpbmu8bM62ft2YwywO
+
+            if (p1.Count != 0)
+            {
+                Console.WriteLine(p1.Count);
+                q1.isEmpty = false;
+
+            }
+            else
+            {
+
+                Console.WriteLine("zeroo");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
